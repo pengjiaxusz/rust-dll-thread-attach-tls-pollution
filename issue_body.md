@@ -8,11 +8,7 @@
   init_current, set_current, ReentrantLock, stdout, println crash
 -->
 
-I'm not sure if this is considered a bug or intentional behavior. The crash is
-`rtabort!` in `set_current()`, which means the Rust runtime explicitly chose to
-abort in this case. However, the trigger is extremely easy to hit accidentally
-(even a `println!` during `DLL_THREAD_ATTACH`), and there's no documentation
-warning about this, so I wanted to bring it to your attention.
+I'm not sure if this is considered a bug or intentional behavior. The crash is `rtabort!` in `set_current()`, which means the Rust runtime explicitly chose to abort in this case. However, the trigger is extremely easy to hit accidentally (even a `println!` during `DLL_THREAD_ATTACH`), and there's no documentation warning about this, so I wanted to bring it to your attention.
 
 ## I tried this code
 
@@ -51,8 +47,7 @@ extern "system" fn DllMain(
 
 ## I expected to see this happen
 
-The worker thread spawned during `DLL_PROCESS_ATTACH` should run successfully
-regardless of what happens during `DLL_THREAD_ATTACH`.
+The worker thread spawned during `DLL_PROCESS_ATTACH` should run successfully regardless of what happens during `DLL_THREAD_ATTACH`.
 
 ## Instead, this happened
 
@@ -90,24 +85,13 @@ std::thread::spawn(|| { ... })
           }
 ```
 
-The issue is in `std::sys::thread::current()` (specifically `init_current()`) —
-it unconditionally sets `CURRENT` on the *calling* thread's TLS, regardless of
-whether that thread is owned by the Rust runtime. When `DLL_THREAD_ATTACH` fires
-on a *foreign* thread (e.g., Vulkan Loader's internal thread), Rust's std
-pollutes `CURRENT` on that thread's TLS. Later, when `std::thread::spawn`
-creates a new thread, `set_current()` in the *new* thread (not the foreign
-thread) detects `CURRENT` is already `Some` and aborts.
+The issue is in `std::sys::thread::current()` (specifically `init_current()`) — it unconditionally sets `CURRENT` on the *calling* thread's TLS, regardless of whether that thread is owned by the Rust runtime. When `DLL_THREAD_ATTACH` fires on a *foreign* thread (e.g., Vulkan Loader's internal thread), Rust's std pollutes `CURRENT` on that thread's TLS. Later, when `std::thread::spawn` creates a new thread, `set_current()` in the *new* thread (not the foreign thread) detects `CURRENT` is already `Some` and aborts.
 
-Key observation: `println!`, `format!`, `eprintln!`, `dbg!`, and `tracing` all
-eventually call `std::io::stdout()` / `stderr()` → `ReentrantLock::try_lock()`
-→ `std::thread::current()`. So even seemingly harmless debug output triggers
-this crash.
+Key observation: `println!`, `format!`, `eprintln!`, `dbg!`, and `tracing` all eventually call `std::io::stdout()` / `stderr()` → `ReentrantLock::try_lock()` → `std::thread::current()`. So even seemingly harmless debug output triggers this crash.
 
 ## Real-world trigger
 
-This reliably occurs when a Rust `cdylib` is loaded as a **Vulkan Layer**,
-because the Vulkan Loader creates internal threads and sends
-`DLL_THREAD_ATTACH` notifications to all loaded layers.
+This reliably occurs when a Rust `cdylib` is loaded as a **Vulkan Layer**, because the Vulkan Loader creates internal threads and sends `DLL_THREAD_ATTACH` notifications to all loaded layers.
 
 ## Minimal reproduction repository
 
@@ -121,8 +105,7 @@ cd rust-dll-thread-attach-tls-pollution
 .\run-all-tests.ps1
 ```
 
-The repo includes isolated child-process testing (crashes don't affect the
-runner) and covers these scenarios:
+The repo includes isolated child-process testing (crashes don't affect the runner) and covers these scenarios:
 
 | # | Scenario | Result |
 |---|----------|--------|
@@ -136,13 +119,8 @@ runner) and covers these scenarios:
 
 ## Possible approaches
 
-1. Make `init_current()` detect foreign threads — check if the current thread is
-   already known to the Rust runtime before setting `CURRENT`. If it's a foreign
-   thread, don't pollute TLS.
-
-2. Document the hazard prominently — add a warning to Windows-specific platform
-   docs and the `DllMain` documentation that any Rust std code during
-   `DLL_THREAD_ATTACH` causes undefined behavior.
+1. Make `init_current()` detect foreign threads — check if the current thread is already known to the Rust runtime before setting `CURRENT`. If it's a foreign thread, don't pollute TLS.
+2. Document the hazard prominently — add a warning to Windows-specific platform docs and the `DllMain` documentation that any Rust std code during `DLL_THREAD_ATTACH` causes undefined behavior.
 
 ## Workaround
 
@@ -168,5 +146,4 @@ release: 1.97.0-nightly
 LLVM version: 22.1.4
 ```
 
-Tested on Windows 11 only. This is a Windows-specific issue since
-`DllMain` / `DLL_THREAD_ATTACH` is a Windows concept.
+Tested on Windows 11 only. This is a Windows-specific issue since `DllMain` / `DLL_THREAD_ATTACH` is a Windows concept.
