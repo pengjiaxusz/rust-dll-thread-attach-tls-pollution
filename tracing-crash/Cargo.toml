@@ -1,0 +1,12 @@
+[package]
+name = "tracing-crash"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
