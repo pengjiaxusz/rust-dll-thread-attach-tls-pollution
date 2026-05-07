@@ -159,13 +159,13 @@ if reason == DLL_THREAD_ATTACH {
 `rustc --version --verbose`:
 
 ```
-rustc 1.96.0-nightly (fda6d37bb 2026-03-27)
+rustc 1.97.0-nightly (365c0e1d7 2026-05-06)
 binary: rustc
-commit-hash: fda6d37bb88ee12fd50fa54d15859f1f91b74f55
-commit-date: 2026-03-27
+commit-hash: 365c0e1d7a614ca94cb48431dcd2bc6d3b645db1
+commit-date: 2026-05-06
 host: x86_64-pc-windows-msvc
-release: 1.96.0-nightly
-LLVM version: 22.1.2
+release: 1.97.0-nightly
+LLVM version: 22.1.4
 ```
 
 Tested on Windows 11 only. This is a Windows-specific issue since

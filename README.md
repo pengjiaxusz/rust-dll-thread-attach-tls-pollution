@@ -66,7 +66,7 @@ layers during negotiation.
 ### Prerequisites
 
 - **Windows** only (DLL/DllMain is a Windows concept)
-- **Rust nightly** — tested with `nightly-2026-03-27` (rustc 1.96.0); the `rust-toolchain.toml` auto-selects nightly, any recent nightly should work
+- **Rust nightly** — tested with `nightly-2026-05-06` (rustc 1.97.0); the `rust-toolchain.toml` auto-selects nightly, any recent nightly should work
 - Uses `edition = "2024"`
 
 ### One-Click Reproduction
