@@ -147,3 +147,7 @@ LLVM version: 22.1.4
 ```
 
 Tested on Windows 11 only. This is a Windows-specific issue since `DllMain` / `DLL_THREAD_ATTACH` is a Windows concept.
+
+---
+
+**Note to reviewers:** This issue was drafted with the help of an AI assistant. While I've done my best to verify the core problem myself (the crash is reproducible and the test cases in the linked repo all produce consistent results), the root cause analysis and technical explanations in this post may contain inaccuracies or oversights that I'm not qualified to catch. Please take the diagnosis with a grain of salt, and I'd greatly appreciate any corrections where my understanding falls short.

@@ -1,3 +1,5 @@
+This is a minimal reproducible repository for [rust-lang/rust#156277](https://github.com/rust-lang/rust/issues/156277).
+
 # DLL_THREAD_ATTACH TLS Pollution: MRE Repository
 
 Minimal reproducible examples demonstrating a critical crash when Rust code executes
@@ -155,3 +157,8 @@ See [early-return-fix/src/lib.rs](early-return-fix/src/lib.rs) for a complete ex
 ## License
 
 MIT OR Apache-2.0
+
+
+---
+
+**Note to reviewers:** This issue was drafted with the help of an AI assistant. While I've done my best to verify the core problem myself (the crash is reproducible and the test cases in the linked repo all produce consistent results), the root cause analysis and technical explanations in this post may contain inaccuracies or oversights that I'm not qualified to catch. Please take the diagnosis with a grain of salt, and I'd greatly appreciate any corrections where my understanding falls short.
